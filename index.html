@@ -5,51 +5,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTubeプレイヤー</title>
+    <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
-
-    <body>
-        <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
-        <!-- 1. ここの<div>タグがYoutubeの<iframe>に置き換わる。 -->
-        <div id="player"></div>
-        <nav>
-            <ul>
-                <li id="doplay">再生</li>
-                <li id="dostop">停止</li>
-                <li id="dopause">一時停止</li>
-                <li id="mute">ミュート</li>
-                <li id="do10sNext">10秒先へ</li>
-                <li id="do10sPrev">10秒戻る</li>
+    <div class="inner">
+        <div class="left">
+            <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+            <!-- 1. ここの<div>タグがYoutubeの<iframe>に置き換わる。 -->
+            <div id="player"></div>
+            <div class="hert">
+                <div class="search">
+                    <form>
+                        <input type="search" id="ytSearch" value="TRiDENT" />
+                        <button id="searchBtn">検索</button>
+                    </form>
+                </div>
                 <li>
-                    <label>ボリューム<input type="range" min="0" max="100" name="volume" id="volume" value="50" />
-                        <span id="volumeNum">50</span>
-                    </label>
+                    <button id="likeBtn" cursor: pointer;">❤️</button>
                 </li>
+            </div>
+            <ul>
                 <li>
                     <select id="MovieId" class="ytMovie" name="ytMovie">
                         <option selected>選択してください。</option>
-                        <option value="bjN-3EyXNyE">TRiDENT『Alive』MV</option>
-                        <option value="We__CnrYa9U">TRiDENT『DISTINATION』</option>
-                        <option value="I6ld4ecEp7s">TRiDENT『IMAGINATION』MV</option>
-                        <option value="azQVVhMUz58">TRiDENT『Continue』MV【exガールズロックバンド革命】</option>
                     </select>
                 </li>
-                <li>
-                    <form id="doSpeed">
-                        <input type="radio" id="mslow" name="speed" value="0.25" />
-                        <label for="mslow">0.25</label>
-                        <input type="radio" id="slow" name="speed" value="0.5" />
-                        <label for="slow">0.5</label>
-                        <input type="radio" id="normal" name="speed" value="1.0" checked />
-                        <label for="normal">1</label>
-                        <input type="radio" id="hspeed" name="speed" value="1.5" />
-                        <label for="hspeed">1.5</label>
-                        <input type="radio" id="mhspeed" name="speed" value="2" />
-                        <label for="mhspeed">2</label>
-                    </form>
-                </li>
             </ul>
+            <ul class="doplay">
+                <li id="do10sNext">10秒先へ</li>
+                <li id="dopause">一時停止</li>
+                <li id="do10sPrev">10秒戻る</li>
+            </ul>
+
+        </div>
+        <nav>
+            <div class="rigth">
+                <ul>
+                    <li id="dostop">停止</li>
+                    <li id="mute">ミュート</li>
+                    <li>
+                        <label>ボリューム<input type="range" min="0" max="100" name="volume" id="volume" value="50" />
+                            <span id="volumeNum">50</span>
+                        </label>
+                    </li>
+                    <li>
+                        <form id="doSpeed">
+                            <input type="radio" id="mslow" name="speed" value="0.25" />
+                            <label for="mslow">0.25</label>
+                            <input type="radio" id="slow" name="speed" value="0.5" />
+                            <label for="slow">0.5</label>
+                            <input type="radio" id="normal" name="speed" value="1.0" checked />
+                            <label for="normal">1</label>
+                            <input type="radio" id="hspeed" name="speed" value="1.5" />
+                            <label for="hspeed">1.5</label>
+                            <input type="radio" id="mhspeed" name="speed" value="2" />
+                            <label for="mhspeed">2</label>
+                        </form>
+                    </li>
+                    <li id="favListContainer">
+                        <strong>お気に入りリスト:</strong>
+                        <ul id="favList"></ul>
+                    </li>
+                </ul>
+            </div>
         </nav>
 
         <script>
@@ -231,7 +250,162 @@
                 playSpeed(parseFloat(speedBtn.speed.value));
             });
         </script>
-    </body>
+        <script>
+            const USE_LOCAL = true; // 開発中はtrue、本番APIを叩きたいときはfalse
+            const selectvideo = document.querySelector(".ytMovie");
+            //関数の定義
+            function ytSearch(val) {
+                const key = 'AIzaSyCfaC5We04mqlDYABYfYMMaVTPWUfFfz4U'; //自分のキーに書き換えます。
+                const num = 10;
+                const part = 'snippet';
+                const type = 'video';
+                const query = val;
+
+                //youtube API エンドポイント
+                const apiUrl = `https://www.googleapis.com/youtube/v3/search?type=${type}&part=${part}&maxResults=${num}&key=${key}&q=${query}&playsinline=1`;
+                //ローカル用のダミーデータ
+                const localUrl = './data/sample.json';
+
+                fetch(USE_LOCAL ? localUrl : apiUrl)//三項演算子
+                    .then((data) => data.json())
+                    .then((obj) => {
+                        console.log(obj);
+                        const selectvideo = document.querySelector('.ytMovie');
+                        selectvideo.innerHTML = '';
+                        //現在入っている<option>を全て削除
+                        for (let movie of obj["items"]) {
+                            //各videoIdとタイトルを取得して変数に代入
+                            const ytId = movie["id"]["videoId"];
+                            const ytTitle = movie["snippet"]["title"];
+                            //optionを作成して、videoIdとtitleを所定の場所に設置し、要素を追加していく。
+                            const optionTag = document.createElement('option');
+                            optionTag.textContent = ytTitle;
+                            optionTag.setAttribute('value', ytId);
+                            selectvideo.appendChild(optionTag);
+                        }
+                    });
+            }
+            const ytSearchBtn = document.querySelector('#searchBtn');
+            ytSearchBtn.addEventListener('click', function (e) {
+                const ytSearchVal = document.querySelector('#ytSearch').value;
+                console.log(ytSearchVal); //検索フォームの値を取得
+
+                e.preventDefault(); //検索ボタンの送信をストップしておく。
+                //関数の実行+引数
+                ytSearch(ytSearchVal);
+            });
+            // --- お気に入り機能（保存機能付き） ---
+            const likeBtn = document.querySelector('#likeBtn');
+            const favList = document.querySelector('#favList');
+
+            // 1. ページ読み込み時に保存されているデータを表示する
+            window.addEventListener('load', () => {
+                const savedFavs = JSON.parse(localStorage.getItem('yt_favorites')) || [];
+                savedFavs.forEach(fav => {
+                    addFavToList(fav.id, fav.title, false); // false = 保存処理を走らせない
+                });
+            });
+
+            // 2. リストに表示して保存する共通関数
+            function addFavToList(videoId, title, shouldSave = true) {
+                // 重複チェック
+                const existingIds = Array.from(favList.querySelectorAll('li')).map(li => li.dataset.id);
+                if (existingIds.includes(videoId)) {
+                    if (shouldSave) alert('この動画は登録済みです');
+                    return;
+                }
+
+                const li = document.createElement('li');
+                li.dataset.id = videoId;
+                li.innerHTML = `
+        <span class="play-fav" style="cursor:pointer; color:blue; text-decoration:underline;">
+            ${title}
+        </span>
+        <button class="remove-fav" style="margin-left:10px;">×</button>
+    `;
+
+                favList.appendChild(li);
+
+                // 再生機能
+                li.querySelector('.play-fav').addEventListener('click', () => {
+                    player.loadVideoById(videoId);
+                });
+
+                // 削除機能
+                li.querySelector('.remove-fav').addEventListener('click', () => {
+                    li.remove();
+                    saveAllFavs(); // 削除した後に状態を保存
+                });
+
+                // 保存が必要な場合（新規追加時）
+                if (shouldSave) {
+                    saveAllFavs();
+                }
+            }
+
+            // 3. 現在のリストをlocalStorageにまるごと保存する関数
+            function saveAllFavs() {
+                const favs = [];
+                favList.querySelectorAll('li').forEach(li => {
+                    favs.push({
+                        id: li.dataset.id,
+                        title: li.querySelector('.play-fav').textContent.trim()
+                    });
+                });
+                localStorage.setItem('yt_favorites', JSON.stringify(favs));
+            }
+
+            // ハートボタンを押した時のイベント
+            likeBtn.addEventListener('click', () => {
+                const videoData = player.getVideoData();
+                if (videoData && videoData.video_id) {
+                    addFavToList(videoData.video_id, videoData.title);
+                }
+            });
+            // 5. プレイヤーの状態が変わるたびに呼び出される関数
+            function onPlayerStateChange(event) {
+                let dopauseBtn = document.querySelector('#dopause');
+
+                // YT.PlayerState.PLAYING (1) は再生中
+                if (event.data == YT.PlayerState.PLAYING) {
+                    dopauseBtn.innerText = '一時停止';
+                }
+                // YT.PlayerState.PAUSED (2) は一時停止中
+                // YT.PlayerState.BUFFERING (3) や CUED (5) も考慮して「再生中以外」なら「再生」にする
+                else {
+                    dopauseBtn.innerText = '　再生　';
+                }
+            }
+            function onYouTubeIframeAPIReady() {
+                player = new YT.Player('player', {
+                    height: '360',
+                    width: '640',
+                    videoId: youtubeId,
+                    playerVars: {
+                        playsinline: 1,
+                        controls: 0
+                    },
+                    events: {
+                        onReady: onPlayerReady,
+                        onStateChange: onPlayerStateChange // ←ここのコメントアウトを外す！
+                    }
+                });
+            }
+            // 一時停止・再生切り替えイベント
+            let dopauseBtn = document.querySelector('#dopause');
+            dopauseBtn.addEventListener('click', function () {
+                // プレイヤーの状態を取得
+                let state = player.getPlayerState();
+
+                if (state == YT.PlayerState.PLAYING) {
+                    player.pauseVideo(); // 再生中なら一時停止
+                } else {
+                    player.playVideo();  // 止まっているなら再生
+                }
+            });
+        </script>
+    </div>
 </body>
+
 
 </html>

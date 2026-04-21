@@ -1,0 +1,35 @@
+@charset "UTF-8";
+
+body {
+    background-color: #bfe4ff;
+}
+
+.hert {
+    display: flex;
+    margin-top: 10px;
+    align-items: center;
+    gap: 400px;
+}
+
+.inner {
+    margin-top: 100px;
+    display: flex;
+    align-items: flex-start;
+    gap: 50px;
+    margin-left: 300px;
+}
+
+.ytMovie {
+    max-width: 630px;
+}
+
+li {
+    padding: 5px;
+    list-style: none;
+}
+
+.doplay {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
