@@ -2,6 +2,9 @@
 
 body {
     background-color: #bfe4ff;
+    margin: 0;
+    display: flex;
+    justify-content: center;
 }
 
 .hert {
