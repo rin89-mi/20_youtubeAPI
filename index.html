@@ -15,27 +15,20 @@
             <!-- 1. ここの<div>タグがYoutubeの<iframe>に置き換わる。 -->
             <div id="player"></div>
             <div class="hert">
-                <div class="search">
-                    <form>
-                        <input type="search" id="ytSearch" value="TRiDENT" />
-                        <button id="searchBtn">検索</button>
-                    </form>
-                </div>
+                <li>
+                    <label>ボリューム<input type="range" min="0" max="100" name="volume" id="volume" value="50" />
+                        <span id="volumeNum">50</span>
+                    </label>
+                </li>
                 <li>
                     <button id="likeBtn" cursor: pointer;">❤️</button>
                 </li>
             </div>
-            <ul>
-                <li>
-                    <select id="MovieId" class="ytMovie" name="ytMovie">
-                        <option selected>選択してください。</option>
-                    </select>
-                </li>
-            </ul>
+
             <ul class="doplay">
-                <li id="do10sNext">10秒先へ</li>
-                <li id="dopause">一時停止</li>
                 <li id="do10sPrev">10秒戻る</li>
+                <li id="dopause">一時停止</li>
+                <li id="do10sNext">10秒先へ</li>
             </ul>
 
         </div>
@@ -44,11 +37,6 @@
                 <ul>
                     <li id="dostop">停止</li>
                     <li id="mute">ミュート</li>
-                    <li>
-                        <label>ボリューム<input type="range" min="0" max="100" name="volume" id="volume" value="50" />
-                            <span id="volumeNum">50</span>
-                        </label>
-                    </li>
                     <li>
                         <form id="doSpeed">
                             <input type="radio" id="mslow" name="speed" value="0.25" />
@@ -63,6 +51,17 @@
                             <label for="mhspeed">2</label>
                         </form>
                     </li>
+                    <div class="search">
+                        <form>
+                            <input type="search" id="ytSearch" value="TRiDENT" />
+                            <button id="searchBtn">検索</button>
+                        </form>
+                    </div>
+                    <li>
+                        <select id="MovieId" class="ytMovie" name="ytMovie">
+                            <option selected>選択してください。</option>
+                        </select>
+                    </li>
                     <li id="favListContainer">
                         <strong>お気に入りリスト:</strong>
                         <ul id="favList"></ul>
@@ -72,310 +71,15 @@
         </nav>
 
         <script>
-            // 2. This code loads the IFrame Player API code asynchronously.
-            // 2. 変数tagにscriptタグを作って入れる。Element=要素、Attrubute=属性
             var tag = document.createElement('script');
-
             tag.src = 'https://www.youtube.com/iframe_api';
             var firstScriptTag = document.getElementsByTagName('script')[0];
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-            // 3. This function creates an <iframe> (and YouTube player)
-            //    after the API code downloads.
-            // 3. APIのコードを読み込んでから、この関数を<iframe>内に影響させる。
             var player;
-            let youtubeId = 'UP1zTP5qcfw'; //TRIDENT × GOMESS「普通なんかじゃいられない。」
-            function onYouTubeIframeAPIReady() {
-                player = new YT.Player('player', {
-                    height: '360',
-                    width: '640',
-                    videoId: youtubeId,
-                    playerVars: {
-                        //③パラメータの設定
-                        playsinline: 1,
-                        controls: 0
-                    },
-                    events: {
-                        onReady: onPlayerReady, //エラーで効かない。
-                        // onStateChange: onPlayerStateChange
-                    }
-                });
-            }
+            let youtubeId = 'UP1zTP5qcfw';
 
-            // 4. The API will call this function when the video player is ready.
-            // 4. このAPIは、video playderが準備でしたら、この関数を呼び出します。
-            function onPlayerReady(event) {
-                event.target.playVideo();
-                let currentVol = 5; //②最初のボリュームを設定（0〜100）
-                event.target.setVolume(currentVol); //③Playerのボリュームに設定
-                document.querySelector('#volume').value = currentVol; //④rangeFormに音量を設定
-                document.querySelector('#volumeNum').textContent = currentVol; //⑤テキストにも音量を数値で表示
-                stopVideo();
-            }
-
-            // 5. The API calls this function when the player's state changes.
-            //    The function indicates that when playing a video (state=1),
-            //    the player should play for six seconds and then stop.
-            /* 5. video playerのステート（状態）が変更されたら、この関数を呼び出す。
-          動画を再生するときの設定は、state=1にしておきます。
-          プレイヤーは、6000ミリ秒後に終了します。 */
-            var done = false;
-            function onPlayerStateChange(event) {
-                if (event.data == YT.PlayerState.PLAYING && !done) {
-                    setTimeout(stopVideo, 6000);
-                    done = true;
-                }
-            }
-            //再生関数
-            function playTheVideo() {
-                player.playVideo();
-            }
-            //playTheVideoで関数を実行すると、player.playVideoを実行する。
-
-            //再生イベント
-            let doplay = document.querySelector('#doplay');
-            doplay.addEventListener('click', function () {
-                //再生関数の実行
-                playTheVideo();
-            });
-
-            //停止関数
-            function stopVideo() {
-                player.stopVideo();
-            }
-
-            let dostop = document.querySelector('#dostop');
-            dostop.addEventListener('click', function () {
-                //停止関数の実行
-                stopVideo();
-            });
-
-            //一時ポーズ
-            function pauseTheVideo() {
-                player.pauseVideo();
-            }
-
-            //一時停止イベント
-            let dopause = document.querySelector('#dopause');
-            dopause.addEventListener('click', function () {
-                pauseTheVideo();
-            });
-
-            //ミュート
-            function onmMute() {
-                if (player.isMuted()) {
-                    player.unMute();
-                } else {
-                    player.mute();
-                }
-            }
-
-            //ミュートイベント
-            let onMuteBtn = document.querySelector('#mute');
-
-            onMuteBtn.addEventListener('click', function () {
-                onmMute();
-
-                if (onMuteBtn.innerText === 'ミュート') {
-                    onMuteBtn.innerText = 'ミュート解除';
-                } else {
-                    onMuteBtn.innerText = 'ミュート';
-                }
-            });
-
-            //十秒先、十秒後
-            function onePrev() {
-                let currentTime = player.getCurrentTime();
-                player.seekTo(currentTime - 10);
-            }
-
-            //10秒後にの関数
-            function oneNext() {
-                let currentTime = player.getCurrentTime();
-                player.seekTo(currentTime + 10);
-            }
-
-            //10秒前へイベント
-            let onePrevBtn = document.querySelector('#do10sPrev');
-            onePrevBtn.addEventListener('click', function () {
-                onePrev();
-            });
-
-            //ボリューム関数(引数)
-            function volumeFn(vol) {
-                //現在のボリューム
-                let currentVol = player.getVolume();
-                //youtubeが持っている関数
-                player.setVolume(vol);
-            }
-
-            let oneNextBtn = document.querySelector('#do10sNext');
-            oneNextBtn.addEventListener('click', function () {
-                oneNext();
-            });
-
-            //ボリュームイベント
-            //input type="range"
-            let volumeBtn = document.querySelector('#volume');
-            //ボリュームの数値を入れているspan
-            let volumeTxt = document.querySelector('#volumeNum');
-            volumeBtn.addEventListener('change', function () {
-                //関数の実行volime()
-                volumeFn(this.value);
-                volumeTxt.textContent = this.value;
-            });
-
-            //動画の切り替えイベント
-            let movieid = document.querySelector('#MovieId');
-            movieid.addEventListener('change', function () {
-                youtubeId = movieid.value;
-                player.loadVideoById(youtubeId);
-            });
-
-            //再生スピード関数
-            function playSpeed(num) {
-                //setPlaybackRateが再生スピードをセットするメソッド
-                console.log(num);
-                player.setPlaybackRate(num);
-                //再生し直して
-                player.playVideo();
-            }
-
-            //再生スピードイベント (radioボタンからの取得)
-            //formを取得して
-            let speedBtn = document.querySelector('#doSpeed');
-            speedBtn.addEventListener('change', function () {
-                //数値でないと効かないので、文字列から数値に変換
-                //htmlから取得する数値は、全部文字列
-                playSpeed(parseFloat(speedBtn.speed.value));
-            });
-        </script>
-        <script>
-            const USE_LOCAL = true; // 開発中はtrue、本番APIを叩きたいときはfalse
-            const selectvideo = document.querySelector(".ytMovie");
-            //関数の定義
-            function ytSearch(val) {
-                const key = 'AIzaSyCfaC5We04mqlDYABYfYMMaVTPWUfFfz4U'; //自分のキーに書き換えます。
-                const num = 10;
-                const part = 'snippet';
-                const type = 'video';
-                const query = val;
-
-                //youtube API エンドポイント
-                const apiUrl = `https://www.googleapis.com/youtube/v3/search?type=${type}&part=${part}&maxResults=${num}&key=${key}&q=${query}&playsinline=1`;
-                //ローカル用のダミーデータ
-                const localUrl = './data/sample.json';
-
-                fetch(USE_LOCAL ? localUrl : apiUrl)//三項演算子
-                    .then((data) => data.json())
-                    .then((obj) => {
-                        console.log(obj);
-                        const selectvideo = document.querySelector('.ytMovie');
-                        selectvideo.innerHTML = '';
-                        //現在入っている<option>を全て削除
-                        for (let movie of obj["items"]) {
-                            //各videoIdとタイトルを取得して変数に代入
-                            const ytId = movie["id"]["videoId"];
-                            const ytTitle = movie["snippet"]["title"];
-                            //optionを作成して、videoIdとtitleを所定の場所に設置し、要素を追加していく。
-                            const optionTag = document.createElement('option');
-                            optionTag.textContent = ytTitle;
-                            optionTag.setAttribute('value', ytId);
-                            selectvideo.appendChild(optionTag);
-                        }
-                    });
-            }
-            const ytSearchBtn = document.querySelector('#searchBtn');
-            ytSearchBtn.addEventListener('click', function (e) {
-                const ytSearchVal = document.querySelector('#ytSearch').value;
-                console.log(ytSearchVal); //検索フォームの値を取得
-
-                e.preventDefault(); //検索ボタンの送信をストップしておく。
-                //関数の実行+引数
-                ytSearch(ytSearchVal);
-            });
-            // --- お気に入り機能（保存機能付き） ---
-            const likeBtn = document.querySelector('#likeBtn');
-            const favList = document.querySelector('#favList');
-
-            // 1. ページ読み込み時に保存されているデータを表示する
-            window.addEventListener('load', () => {
-                const savedFavs = JSON.parse(localStorage.getItem('yt_favorites')) || [];
-                savedFavs.forEach(fav => {
-                    addFavToList(fav.id, fav.title, false); // false = 保存処理を走らせない
-                });
-            });
-
-            // 2. リストに表示して保存する共通関数
-            function addFavToList(videoId, title, shouldSave = true) {
-                // 重複チェック
-                const existingIds = Array.from(favList.querySelectorAll('li')).map(li => li.dataset.id);
-                if (existingIds.includes(videoId)) {
-                    if (shouldSave) alert('この動画は登録済みです');
-                    return;
-                }
-
-                const li = document.createElement('li');
-                li.dataset.id = videoId;
-                li.innerHTML = `
-        <span class="play-fav" style="cursor:pointer; color:blue; text-decoration:underline;">
-            ${title}
-        </span>
-        <button class="remove-fav" style="margin-left:10px;">×</button>
-    `;
-
-                favList.appendChild(li);
-
-                // 再生機能
-                li.querySelector('.play-fav').addEventListener('click', () => {
-                    player.loadVideoById(videoId);
-                });
-
-                // 削除機能
-                li.querySelector('.remove-fav').addEventListener('click', () => {
-                    li.remove();
-                    saveAllFavs(); // 削除した後に状態を保存
-                });
-
-                // 保存が必要な場合（新規追加時）
-                if (shouldSave) {
-                    saveAllFavs();
-                }
-            }
-
-            // 3. 現在のリストをlocalStorageにまるごと保存する関数
-            function saveAllFavs() {
-                const favs = [];
-                favList.querySelectorAll('li').forEach(li => {
-                    favs.push({
-                        id: li.dataset.id,
-                        title: li.querySelector('.play-fav').textContent.trim()
-                    });
-                });
-                localStorage.setItem('yt_favorites', JSON.stringify(favs));
-            }
-
-            // ハートボタンを押した時のイベント
-            likeBtn.addEventListener('click', () => {
-                const videoData = player.getVideoData();
-                if (videoData && videoData.video_id) {
-                    addFavToList(videoData.video_id, videoData.title);
-                }
-            });
-            // 5. プレイヤーの状態が変わるたびに呼び出される関数
-            function onPlayerStateChange(event) {
-                let dopauseBtn = document.querySelector('#dopause');
-
-                // YT.PlayerState.PLAYING (1) は再生中
-                if (event.data == YT.PlayerState.PLAYING) {
-                    dopauseBtn.innerText = '一時停止';
-                }
-                // YT.PlayerState.PAUSED (2) は一時停止中
-                // YT.PlayerState.BUFFERING (3) や CUED (5) も考慮して「再生中以外」なら「再生」にする
-                else {
-                    dopauseBtn.innerText = '　再生　';
-                }
-            }
+            // ★関数は1つにまとめます
             function onYouTubeIframeAPIReady() {
                 player = new YT.Player('player', {
                     height: '360',
@@ -387,21 +91,155 @@
                     },
                     events: {
                         onReady: onPlayerReady,
-                        onStateChange: onPlayerStateChange // ←ここのコメントアウトを外す！
+                        onStateChange: onPlayerStateChange // 状態変化を監視
                     }
                 });
             }
-            // 一時停止・再生切り替えイベント
-            let dopauseBtn = document.querySelector('#dopause');
-            dopauseBtn.addEventListener('click', function () {
-                // プレイヤーの状態を取得
-                let state = player.getPlayerState();
 
-                if (state == YT.PlayerState.PLAYING) {
-                    player.pauseVideo(); // 再生中なら一時停止
+            function onPlayerReady(event) {
+                let currentVol = 5;
+                event.target.setVolume(currentVol);
+                document.querySelector('#volume').value = currentVol;
+                document.querySelector('#volumeNum').textContent = currentVol;
+                // 準備ができたらミュート状態もチェックしてUIに反映
+                updateMuteUI();
+            }
+
+            // ★再生・一時停止の表示切り替えロジック
+            function onPlayerStateChange(event) {
+                let dopauseBtn = document.querySelector('#dopause');
+                if (event.data == YT.PlayerState.PLAYING) {
+                    dopauseBtn.innerText = '一時停止';
                 } else {
-                    player.playVideo();  // 止まっているなら再生
+                    dopauseBtn.innerText = '　再生　';
                 }
+            }
+
+            // --- 各種ボタンイベント ---
+
+            // 停止
+            document.querySelector('#dostop').addEventListener('click', () => player.stopVideo());
+
+            // 一時停止・再生のトグル
+            document.querySelector('#dopause').addEventListener('click', () => {
+                let state = player.getPlayerState();
+                if (state == YT.PlayerState.PLAYING) {
+                    player.pauseVideo();
+                } else {
+                    player.playVideo();
+                }
+            });
+
+            // ミュート機能の修正
+            let onMuteBtn = document.querySelector('#mute');
+            onMuteBtn.addEventListener('click', function () {
+                if (player.isMuted()) {
+                    player.unMute();
+                } else {
+                    player.mute();
+                }
+                updateMuteUI(); // 見た目を更新する関数を呼ぶ
+            });
+
+            // ミュートの見た目を更新する関数
+            function updateMuteUI() {
+                if (player.isMuted()) {
+                    onMuteBtn.innerText = 'ミュート中 ';
+                    onMuteBtn.style.Color = 'ccc'; // ミュート中は赤くする例
+                    onMuteBtn.style.color = 'red';
+                } else {
+                    onMuteBtn.innerText = 'ミュート';
+                    onMuteBtn.style.backgroundColor = ''; // 元に戻す
+                    onMuteBtn.style.color = '';
+                }
+            }
+
+            // 10秒送り・戻し
+            document.querySelector('#do10sPrev').addEventListener('click', () => {
+                player.seekTo(player.getCurrentTime() - 10);
+            });
+            document.querySelector('#do10sNext').addEventListener('click', () => {
+                player.seekTo(player.getCurrentTime() + 10);
+            });
+
+            // ボリューム
+            document.querySelector('#volume').addEventListener('change', function () {
+                player.setVolume(this.value);
+                document.querySelector('#volumeNum').textContent = this.value;
+            });
+
+            // スピード
+            document.querySelector('#doSpeed').addEventListener('change', function () {
+                player.setPlaybackRate(parseFloat(this.speed.value));
+            });
+
+            // 動画切り替え
+            document.querySelector('#MovieId').addEventListener('change', function () {
+                player.loadVideoById(this.value);
+            });
+
+            // --- 検索機能 ---
+            const USE_LOCAL = true;
+            function ytSearch(val) {
+                const key = 'AIzaSy...'; // 自分のキー
+                const apiUrl = `https://www.googleapis.com/youtube/v3/search?type=video&part=snippet&maxResults=10&key=${key}&q=${val}`;
+                const localUrl = './data/sample.json';
+
+                fetch(USE_LOCAL ? localUrl : apiUrl)
+                    .then(data => data.json())
+                    .then(obj => {
+                        const selectvideo = document.querySelector('.ytMovie');
+                        selectvideo.innerHTML = '<option>選択してください</option>';
+                        obj.items.forEach(movie => {
+                            const optionTag = document.createElement('option');
+                            optionTag.textContent = movie.snippet.title;
+                            optionTag.value = movie.id.videoId;
+                            selectvideo.appendChild(optionTag);
+                        });
+                    });
+            }
+
+            document.querySelector('#searchBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                ytSearch(document.querySelector('#ytSearch').value);
+            });
+
+            // --- お気に入り機能 ---
+            const favList = document.querySelector('#favList');
+
+            window.addEventListener('load', () => {
+                const savedFavs = JSON.parse(localStorage.getItem('yt_favorites')) || [];
+                savedFavs.forEach(fav => addFavToList(fav.id, fav.title, false));
+            });
+
+            function addFavToList(videoId, title, shouldSave = true) {
+                const existingIds = Array.from(favList.querySelectorAll('li')).map(li => li.dataset.id);
+                if (existingIds.includes(videoId)) return;
+
+                const li = document.createElement('li');
+                li.dataset.id = videoId;
+                li.innerHTML = `<span class="play-fav" style="cursor:pointer; color:blue; text-decoration:underline;">${title}</span><button class="remove-fav" style="margin-left:10px;">×</button>`;
+                favList.appendChild(li);
+
+                li.querySelector('.play-fav').addEventListener('click', () => player.loadVideoById(videoId));
+                li.querySelector('.remove-fav').addEventListener('click', () => {
+                    li.remove();
+                    saveAllFavs();
+                });
+                if (shouldSave) saveAllFavs();
+            }
+
+            function saveAllFavs() {
+                const favs = Array.from(favList.querySelectorAll('li')).map(li => ({
+                    id: li.dataset.id,
+                    title: li.querySelector('.play-fav').textContent
+                }));
+                localStorage.setItem('yt_favorites', JSON.stringify(favs));
+            }
+
+            document.querySelector('#likeBtn').addEventListener('click', () => {
+                const data = player.getVideoData();
+                if (data && data.video_id) addFavToList(data.video_id, data.title);
             });
         </script>
     </div>
