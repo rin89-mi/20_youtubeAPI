@@ -36,3 +36,9 @@ li {
     justify-content: center;
     gap: 30px;
 }
+
+.btn {
+    background-color: #fff;
+    border-radius: 5px;
+    color: #6495ED;
+}

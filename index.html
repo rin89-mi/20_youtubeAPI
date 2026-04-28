@@ -26,9 +26,9 @@
             </div>
 
             <ul class="doplay">
-                <li id="do10sPrev">10秒戻る</li>
-                <li id="dopause">一時停止</li>
-                <li id="do10sNext">10秒先へ</li>
+                <li id="do10sPrev" class="btn">10秒戻る</li>
+                <li id="dopause" class="btn">一時停止</li>
+                <li id="do10sNext" class="btn">10秒先へ</li>
             </ul>
 
         </div>
@@ -111,7 +111,7 @@
                 if (event.data == YT.PlayerState.PLAYING) {
                     dopauseBtn.innerText = '一時停止';
                 } else {
-                    dopauseBtn.innerText = '　再生　';
+                    dopauseBtn.innerText = ' 再生 ';
                 }
             }
 
@@ -240,6 +240,19 @@
             document.querySelector('#likeBtn').addEventListener('click', () => {
                 const data = player.getVideoData();
                 if (data && data.video_id) addFavToList(data.video_id, data.title);
+            });
+            document.querySelector('#MovieId').addEventListener('change', function () {
+
+                // 動画を再生
+
+                player.loadVideoById(this.value);
+
+                // ★追加：選択されたテキスト（タイトル）を検索欄に入れる
+
+                const selectedText = this.options[this.selectedIndex].text;
+
+                document.querySelector('#ytSearch').value = selectedText;
+
             });
         </script>
     </div>
